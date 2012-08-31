@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'bus.views.home', name='home'),
     # url(r'^bus/', include('bus.foo.urls')),
+    url(r'^android/', include('android.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
