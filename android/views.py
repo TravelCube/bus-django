@@ -12,7 +12,7 @@ def lines(request):
     return HttpResponse(j)
 
 def stops(request):
-    route_id = 1081808
+    route_id = int(request.POST[u'route_id'])
     l = request.session['lines']
     res = [x[1] for x in l if x[0] == route_id]
     stops = bus.get_stops(res)
