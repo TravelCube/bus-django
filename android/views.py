@@ -40,14 +40,17 @@ def lines(request):
     return HttpResponse(j)
 
 def stops(request):
-    route_id = int(request.POST[u'route_id'])
+    if request.method == 'GET':
+        route_id = int(request.GET[u'route_id'])
+    else:
+        route_id = int(request.POST[u'route_id'])
     l = request.session['lines']
     res = [x[1] for x in l if x[0] == route_id]
-    stops = bus.get_stops(res)
-    if stops == None:
+    stopsl = bus.get_stops(res)
+    if stopsl == None:
         #return error
         pass
-    data = [{'name':x[4], 'order':x[3], 'id':x[2], 'lat':31.1, 'lon':32.2} for x in stops]
+    data = [{'name':x[4], 'order':x[3], 'id':x[2], 'lat':x[7], 'lon':x[8]} for x in stopsl]
     j = json.dumps({'data':data},ensure_ascii=False)
     return HttpResponse(j)
 
