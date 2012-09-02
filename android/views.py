@@ -2,9 +2,37 @@ from django.http import HttpResponse
 from Bus import bus
 import json
 
+days = {}
+days[1] = 'sunday'
+days[2] = 'monday'
+days[3] = 'tuesday'
+days[4] = 'wednesday'
+days[5] = 'thursday'
+days[6] = 'friday'
+days[7] = 'saturday'
+
 def lines(request):
-    q = request.POST
-    names,r = bus.get(1,2,3,4,5)
+    print 'test'
+    if request.method == 'GET':
+        busNumber = str(request.GET[u'bus'])
+        lat = str(request.GET[u'lat'])
+        lon = str(request.GET[u'lon'])
+        acc = str(request.GET[u'acc'])
+        hour = str(request.GET[u'hour'])
+        hour = hour + ':00:00'
+        day = request.GET[u'day']
+        day = days[int(str(day))]
+    else:
+        busNumber = request.POST[u'bus']
+        lat = request.POST[u'lat']
+        lon = request.POST[u'lon']
+        acc = request.POST[u'acc']
+        hour = request.POST[u'hour']
+        hour = hour + ':00:00'
+        day = request.POST[u'day']
+        day = days[day]
+    print busNumber,lat,lon,acc,hour,day
+    names,r = bus.get(busNumber,lat,lon,acc,hour,day)
     data = [{'id':key, 'lastStop':value} for key,value in names]
     request.session['lines'] = r
     j = json.dumps({'data':data},ensure_ascii=False)
