@@ -23,6 +23,7 @@ def lines(request):
         day = request.GET[u'day']
         day = days[int(str(day))]
     else:
+        print request.POST
         busNumber = request.POST[u'bus']
         lat = request.POST[u'lat']
         lon = request.POST[u'lon']
@@ -30,9 +31,15 @@ def lines(request):
         hour = request.POST[u'hour']
         hour = hour + ':00:00'
         day = request.POST[u'day']
-        day = days[day]
-    print busNumber,lat,lon,acc,hour,day
-    names,r = bus.get(busNumber,lat,lon,acc,hour,day)
+        day = days[int(str(day))]
+
+    print 'args:',busNumber,lat,lon,acc,hour,day
+    try:
+        names,r = bus.get(busNumber,lat,lon,acc,hour,day)
+    except Exception as a:
+        print 'error'
+        print a
+
     data = [{'id':key, 'lastStop':value} for key,value in names]
     request.session['lines'] = r
     j = json.dumps({'data':data},ensure_ascii=False)
