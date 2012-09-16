@@ -77,6 +77,12 @@ def client_log(request):
     session_log(request, get_parms(request)[u'log'])
     return HttpResponse('ok')
 
+def alert(request):
+    parms = get_parms(request)
+    msg = 'lat: {0}, lon: {1}, acc: {2}'.format(parms[u'lat'], parms[u'lon'], parms[u'acc'])
+    session_log(request, msg)
+    return HttpResponse('ok')
+
 def session_log(request, msg):
     log.info('user {0}, {1}'.format(request.session.session_key, msg))
 
