@@ -1,6 +1,10 @@
 from django.http import HttpResponse
 from Bus import bus
 import json
+import logging
+import time
+
+log = logging.getLogger('android')
 
 days = {}
 days[1] = 'sunday'
@@ -12,7 +16,8 @@ days[6] = 'friday'
 days[7] = 'saturday'
 
 def lines(request):
-    print 'test'
+    t = time.time()
+    log.info(request.method)
     if request.method == 'GET':
         busNumber = str(request.GET[u'bus'])
         lat = str(request.GET[u'lat'])
@@ -23,7 +28,6 @@ def lines(request):
         day = request.GET[u'day']
         day = days[int(str(day))]
     else:
-        print request.POST
         busNumber = request.POST[u'bus']
         lat = request.POST[u'lat']
         lon = request.POST[u'lon']
@@ -33,17 +37,18 @@ def lines(request):
         day = request.POST[u'day']
         day = days[int(str(day))]
 
-    print 'args:',busNumber,lat,lon,acc,hour,day
+    log.info('args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
+
     try:
         names,r = bus.get(busNumber,lat,lon,acc,hour,day)
     except Exception as a:
-        print 'error'
-        print a
+        log.exception(a)
 
     data = [{'id':key, 'lastStop':value} for key,value in names]
     request.session['lines'] = r
     j = json.dumps({'data':data},ensure_ascii=False)
     #return HttpResponse(j, mimetype="text/json;charset=UTF-8")
+    log.info('time: {0}'.format(time.time() - t))
     return HttpResponse(j)
 
 def stops(request):
