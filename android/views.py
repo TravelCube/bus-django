@@ -66,3 +66,12 @@ def stops(request):
     j = json.dumps({'data':data},ensure_ascii=False)
     return HttpResponse(j)
 
+
+def userop(request):
+    if request.method == 'GET':
+        choice = int(request.GET[u'choice'])
+    else:
+        choice = int(request.POST[u'choice'])
+    log.info('user {0}, {1}'.format(request.session.session_key, choice))
+    return HttpResponse('ok')
+
