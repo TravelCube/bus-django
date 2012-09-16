@@ -15,29 +15,27 @@ days[5] = 'thursday'
 days[6] = 'friday'
 days[7] = 'saturday'
 
+def get_parms(request):
+    if request.method == 'GET':
+        return request.GET
+    elif request.method == 'POST':
+        return request.POST
+
 def lines(request):
     t = time.time()
     log.info(request.method)
-    if request.method == 'GET':
-        busNumber = str(request.GET[u'bus'])
-        lat = str(request.GET[u'lat'])
-        lon = str(request.GET[u'lon'])
-        acc = str(request.GET[u'acc'])
-        hour = str(request.GET[u'hour'])
-        hour = hour + ':00:00'
-        day = request.GET[u'day']
-        day = days[int(str(day))]
-    else:
-        busNumber = request.POST[u'bus']
-        lat = request.POST[u'lat']
-        lon = request.POST[u'lon']
-        acc = request.POST[u'acc']
-        hour = request.POST[u'hour']
-        hour = hour + ':00:00'
-        day = request.POST[u'day']
-        day = days[int(str(day))]
+    session_log(request, request.method)
+    parms = get_parms(request)
+    busNumber = str(parms[u'bus'])
+    lat = str(parms[u'lat'])
+    lon = str(parms[u'lon'])
+    acc = str(parms[u'acc'])
+    hour = str(parms[u'hour'])
+    hour = hour + ':00:00'
+    day = parms[u'day']
+    day = days[int(str(day))]
 
-    log.info('args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
+    session_log(request, 'args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
 
     try:
         names,r = bus.get(busNumber,lat,lon,acc,hour,day)
@@ -48,7 +46,7 @@ def lines(request):
     request.session['lines'] = r
     j = json.dumps({'data':data},ensure_ascii=False)
     #return HttpResponse(j, mimetype="text/json;charset=UTF-8")
-    log.info('time: {0}'.format(time.time() - t))
+    session_log(request, 'time: {0}'.format(time.time() - t))
     return HttpResponse(j)
 
 def stops(request):
@@ -72,6 +70,13 @@ def userop(request):
         choice = int(request.GET[u'choice'])
     else:
         choice = int(request.POST[u'choice'])
-    log.info('user {0}, {1}'.format(request.session.session_key, choice))
+    session_log(request, choice)
     return HttpResponse('ok')
+
+def client_log(request):
+    session_log(request, get_parms(request)[u'log'])
+    return HttpResponse('ok')
+
+def session_log(request, msg):
+    log.info('user {0}, {1}'.format(request.session.session_key, msg))
 
