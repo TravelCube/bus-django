@@ -38,12 +38,11 @@ def lines(request):
     session_log(request, 'args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
 
     try:
-        names,r = bus.get(busNumber,lat,lon,acc,hour,day)
+        d = bus.get(busNumber,lat,lon,acc,hour,day)
     except Exception as a:
         log.exception(a)
 
-    data = [{'id':key, 'lastStop':value} for key,value in names]
-    request.session['lines'] = r
+    data = [{'id':r[0], 'lastStop':r[1]} for r in d]
     j = json.dumps({'data':data},ensure_ascii=False)
     #return HttpResponse(j, mimetype="text/json;charset=UTF-8")
     session_log(request, 'time: {0}'.format(time.time() - t))
@@ -51,16 +50,15 @@ def lines(request):
 
 def stops(request):
     if request.method == 'GET':
-        route_id = int(request.GET[u'route_id'])
+        file_name = str(request.GET[u'route_id'])
     else:
-        route_id = int(request.POST[u'route_id'])
-    l = request.session['lines']
-    res = [x[1] for x in l if x[0] == route_id]
-    stopsl = bus.get_stops(res)
+        file_name = str(request.POST[u'route_id'])
+    session_log(request, 'args: {0}'.format(file_name))
+    stopsl = bus.get_stops(file_name)
     if stopsl == None:
         #return error
         pass
-    data = [{'name':x[4], 'order':x[3], 'id':x[2], 'lat':x[7], 'lon':x[8]} for x in stopsl]
+    data = [{'name':x[1], 'order':0, 'id':x[0], 'lat':x[3], 'lon':x[4]} for x in stopsl]
     j = json.dumps({'data':data},ensure_ascii=False)
     return HttpResponse(j)
 
