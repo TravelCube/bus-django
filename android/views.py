@@ -1,8 +1,9 @@
 from django.http import HttpResponse
-from Bus import bus
+from Bus import controller
 import json
 import logging
 import time
+from celery import group
 
 log = logging.getLogger('android')
 
@@ -22,6 +23,10 @@ def get_parms(request):
         return request.POST
 
 def lines(request):
+   # g = group(addd.s(2,2), add.s(2,3))
+   # res = g.apply_async()
+   # for r in res.iterate():
+   #     print r
     t = time.time()
     log.info(request.method)
     session_log(request, request.method)
@@ -36,9 +41,11 @@ def lines(request):
     day = days[int(str(day))]
 
     session_log(request, 'args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
+    r = controller.get_parallel(busNumber, lat, lon, acc, hour, day)
+    print time.time() - t
 
     try:
-        d = bus.get(busNumber,lat,lon,acc,hour,day)
+        d = controller.get_file_names_from_bus_num(busNumber,lat,lon,acc,hour,day)
     except Exception as a:
         log.exception(a)
 
