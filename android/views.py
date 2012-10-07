@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from Bus import bus
+from Bus import controller
 import json
 import logging
 import time
@@ -38,7 +38,7 @@ def lines(request):
     session_log(request, 'args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
 
     try:
-        d = bus.get(busNumber,lat,lon,acc,hour,day)
+        d = controller.get_file_names_from_bus_number(busNumber,lat,lon,acc,hour,day)
     except Exception as a:
         log.exception(a)
 
