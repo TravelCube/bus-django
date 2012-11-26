@@ -23,13 +23,7 @@ def get_parms(request):
         return request.POST
 
 def lines(request):
-   # g = group(addd.s(2,2), add.s(2,3))
-   # res = g.apply_async()
-   # for r in res.iterate():
-   #     print r
     t = time.time()
-    log.info(request.method)
-    session_log(request, request.method)
     parms = get_parms(request)
     busNumber = str(parms[u'bus'])
     lat = str(parms[u'lat'])
@@ -40,19 +34,15 @@ def lines(request):
     day = parms[u'day']
     day = days[int(str(day))]
 
-    session_log(request, 'args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
-    #r = controller.get_parallel(busNumber, lat, lon, acc, hour, day)
-    #print time.time() - t
-
     try:
         d = controller.get_file_names_from_bus_num(busNumber,lat,lon,acc,hour,day)
     except Exception as a:
-        log.exception(a)
+        log.log('{0} {1} {2}'.format('args: {0}'.format((busNumber,lat,lon,acc,hour,day)),'time: {0}'.format(time.time() - t), a)
+        return HttpResponse(status=500)
 
     data = [{'id':r[0], 'lastStop':r[1]} for r in d]
     j = json.dumps({'data':data},ensure_ascii=False)
-    #return HttpResponse(j, mimetype="text/json;charset=UTF-8")
-    session_log(request, 'time: {0}'.format(time.time() - t))
+    log.log('{0} {1} {2}'.format('args: {0}'.format((busNumber,lat,lon,acc,hour,day)),'time: {0}'.format(time.time() - t), len(d))
     return HttpResponse(j)
 
 def stops(request):
@@ -69,25 +59,12 @@ def stops(request):
     j = json.dumps({'data':data},ensure_ascii=False)
     return HttpResponse(j)
 
-
-def userop(request):
-    if request.method == 'GET':
-        choice = int(request.GET[u'choice'])
-    else:
-        choice = int(request.POST[u'choice'])
-    session_log(request, choice)
-    return HttpResponse('ok')
-
 def client_log(request):
-    session_log(request, get_parms(request)[u'log'])
+    log.log(get_parms(request)[u'log'])
     return HttpResponse('ok')
 
 def alert(request):
     parms = get_parms(request)
-    msg = 'lat: {0}, lon: {1}, acc: {2}'.format(parms[u'lat'], parms[u'lon'], parms[u'acc'])
-    session_log(request, msg)
+    msg = 'set: {0}, user: {1}'.format( 'lat: {0}, lon: {1}, acc: {2}'.format(parms[u'lat'], parms[u'lon'], parms[u'acc']), 'lat: {0}, lon: {1}, acc: {2}'.format(parms[u'ulat'], parms[u'ulon'], parms[u'uacc']))
+    log.log(msg)
     return HttpResponse('ok')
-
-def session_log(request, msg):
-    log.info('user {0}, {1}'.format(request.session.session_key, msg))
-
