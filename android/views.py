@@ -3,7 +3,7 @@ from Bus import controller
 import json
 import logging
 import time
-from celery import group
+#from celery import group
 
 log = logging.getLogger('android')
 
@@ -41,8 +41,8 @@ def lines(request):
     day = days[int(str(day))]
 
     session_log(request, 'args: {0}'.format((busNumber,lat,lon,acc,hour,day)))
-    r = controller.get_parallel(busNumber, lat, lon, acc, hour, day)
-    print time.time() - t
+    #r = controller.get_parallel(busNumber, lat, lon, acc, hour, day)
+    #print time.time() - t
 
     try:
         d = controller.get_file_names_from_bus_num(busNumber,lat,lon,acc,hour,day)
